@@ -2,6 +2,7 @@
 .image-wrapper {
   width: 100%x;
   padding: 0;
+  background-color:rgb(203, 253, 253);
   border-radius: 10px;
   overflow: hidden;
 }
