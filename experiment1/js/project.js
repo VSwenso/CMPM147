@@ -30,7 +30,7 @@ function main() {
     call: ["bank loan", "beaver", "banana", " Heavily used Rubber Chicken", "light up Kylo Ren funko-pop", "Rabid Wombat", "high-elf with the subclass draconic bloodline", "Minecraft enchanting table", "Cease and Desist", "Crusty white dog that is on the verge of death", "heel of bread loaf that gets uneaten", "peice of candy from the bottom of grandmas purse"],
     response: ["you've got my interest", "DAMN", "you are aPEELing", "you light up my word", "you are loud and annoying", "I just rolled a D20", "you fire me up", "I am about to go to jail", "you make me think im in heaven"],
     job: ["Bitcoin", "Subway", "Disney-Pixar", "Only-Fans", "Self-Proclaimed", "Uneducated", "WWE", "dictator", "Dinosaur Impersonator"],
-    title: ["Dark wizard", "sandwich-artist ", "clown", "ultimate mechanic", "interpretive dance intructor", "chief unicorn wrangler","Director of Fun and Frolic", "Grand Poohbah of Affairs", "Time-Lord", "Galatic Ambassador", "Digital Prophet", "Head Schemer"],
+    title: ["Dark wizard", "sandwich-artist ", "clown", "ultimate mechanic", "interpretive dance instructor", "chief unicorn wrangler","Director of Fun and Frolic", "Grand Poohbah of Affairs", "Time-Lord", "Galatic Ambassador", "Digital Prophet", "Head Schemer"],
     adjective: ["lovely", "enthralling", "captivating", "radiant", "rizzy", "magnetic", "super-duper", "angelic", "exquisite"],
     message: ["nanosecond", "moment", "breath", "second", "holler", "twinkling", "bable", "moment of your time", "sec", "..sowwy im shyyy", "...WHY ARE YOU LEAVING", "...wait, no! Come back"],
     
