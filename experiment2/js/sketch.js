@@ -1,6 +1,6 @@
-// sketch.js - purpose and description here
-// Author: Your Name
-// Date:
+// sketch.js - Adding in the work from glitch-living impressions. 
+// Author: Tory Swenson
+// Date: 04/16/24
 
 // Here is how you might set up an OOP p5.js project
 // Note that p5.js looks for a file called sketch.js
@@ -24,6 +24,79 @@ class MyClass {
     myMethod() {
         // code to run when method is called
     }
+}
+
+/* exported setup, draw */
+function main() {
+  let seed = 239;
+
+  const grassColor = "#3f539b";
+  //const skyColor = "#3a78c9";
+  const stoneColor = "#08254a";
+  const treeColor = "#046e85";
+
+  function setup() {
+    createCanvas(400, 200);
+    createButton("reimagine").mousePressed(() => seed++);
+  }
+
+  function draw() {
+    randomSeed(seed);
+
+    background(100);
+
+    noStroke();
+
+      let skyTop = color('#08254a');
+      let skyBottom = color('#3a78c9');
+      for (let y = 0; y < height / 2; y++) {
+        let inter = map(y, 0, height / 2, 0, 1);
+        let skyColor = lerpColor(skyTop, skyBottom, inter);
+        stroke(skyColor);
+        line(0, y, width, y);
+      }
+      
+    //fill(skyColor);
+    //rect(0, 0, width, height / 2);
+
+    fill(grassColor);
+    rect(0, height / 2, width, height / 2);
+
+    fill(stoneColor);
+    beginShape();
+    vertex(0, height / 2);
+    const steps = 10;
+    for (let i = 0; i < steps + 1; i++) {
+      let x = (width * i) / steps;
+      let y =
+        height / 2 - (random() * random() * random() * height) / 2;
+      vertex(x, y);
+    }
+    vertex(width, height / 2);
+    endShape(CLOSE);
+  
+    //Draw Bushes
+    const bushes = 50*random() ;
+    const move = mouseX/width
+    fill(treeColor); 
+    for (let i = 0; i < bushes; i++) {
+      let x = width * ((random() + (move/50 + millis() / 500000.0) ) % 1);
+      let y = random(height / 2, height);
+      let size = random(10, 20);
+      ellipse(x, y, size);
+    }
+
+    fill(treeColor);
+    const trees = 20*random();
+    const scrub = mouseX/width;
+    for (let i = 0; i < trees; i++) {
+      let z = random();
+      let x = width * ((random() + (scrub/50 + millis() / 500000.0) / z) % 1);
+      let s = width / 50 / z;
+      let y = height / 2 + height / 20 / z;
+      triangle(x, y - s, x - s / 4, y, x + s / 4, y);
+    }
+  }
 }
 
 function resizeScreen() {
