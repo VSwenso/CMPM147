@@ -1,6 +1,6 @@
-// project.js - create a overworld biome and dungeon which is randomly generated. 
-// Author: Tory Swenson
-// Date: 4/23/24
+// project.js - purpose and description here
+// Author: Your Name
+// Date:
 
 // NOTE: This is how we might start a basic JavaaScript OOP project
 
