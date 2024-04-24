@@ -242,7 +242,7 @@ var myp5 = new p5((dungeon) => {
           let ti = dungeon.floor(dungeon.random(9, 11))
           let tj = dungeon.floor(dungeon.random(18, 19))
           placeTile(i, j, ti, tj);
-          placeTile(i, j, 9 + (millis()%((i+1)*(j+1)%7 * 1000) < (i*j%5 * 25) ? -1 : -2), 18 + (millis()%((i+1)*(j+1)%19 * 700) < (i*j%5 + 250) ? 1 : 2));
+          placeTile(i, j, 9 + (dungeon.millis()%((i+1)*(j+1)%7 * 1000) < (i*j%5 * 25) ? -1 : -2), 18 + (dungeon.millis()%((i+1)*(j+1)%19 * 700) < (i*j%5 + 250) ? 1 : 2));
         }
         else if (grid[i][j] == '-') {
           let ti = (dungeon.floor(dungeon.random(1, 3)))
@@ -308,7 +308,7 @@ function reseed_2() {
   seed_2 = (seed_2 | 0) + 1109;
   overworld.randomSeed(seed_2);
   overworld.noiseSeed(seed_2);
-  overworld.select("#seedReport").html("seed " + seed_2);
+  overworld.select("#seedReport2").html("seed " + seed_2);
   regenerateGrid_2();
 }
 
@@ -347,7 +347,7 @@ overworld.setup = () => {
   numCols_2 = overworld.select("#asciiBox2").attribute("rows") | 0;
   numRows_2 = overworld.select("#asciiBox2").attribute("cols") | 0;
 
-  overworld.createCanvas(16 * numCols_2, 16 * numRows_2).parent("canvasContainer");
+  overworld.createCanvas(16 * numCols_2, 16 * numRows_2).parent("canvasContainer2");
   overworld.select("canvas").elt.getContext("2d").imageSmoothingEnabled = false;
 
   overworld.select("#reseedButton2").mousePressed(reseed_2);
