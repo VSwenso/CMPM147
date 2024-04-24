@@ -464,7 +464,7 @@ function drawContext(grid, i, j, target, dti, dtj) {
 
 //Drawing grids.
 function drawGrid(grid) {
-  background(128);
+  overworld.background(128);
   for(let i = 0; i < grid.length; i++) {
     for(let j = 0; j < grid[i].length; j++) {
       //Drawing the water, andl also animating it using % operators and millis().
@@ -480,8 +480,7 @@ function drawGrid(grid) {
       else{
         drawContext(grid, i, j, "-", 0, 6);
       }
-      //Drawing the high lands with the houses and towers.
-      //Also drawing the trees in the low lands
+      //Drawing the high lands with the houses
       //Drawing ground
       if (grid[i][j] == '_') {
         let ti = overworld.floor(overworld.random(4))
