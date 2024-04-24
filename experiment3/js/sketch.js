@@ -24,17 +24,17 @@ var myp5 = new p5((dungeon) => {
     seed = (seed | 0) + 1109;
     dungeon.randomSeed(seed);
     dungeon.noiseSeed(seed);
-    dungeon.select("#seedReport").html("seed " + seed);
+    dungeon.select("#seedReport1").html("seed" + seed);
     regenerateGrid();
   }
   
   function regenerateGrid() {
-    dungeon.select("#asciiBox").value(gridToString(generateGrid(numCols, numRows)));
+    dungeon.select("#asciiBox1").value(gridToString(generateGrid(numCols, numRows)));
     reparseGrid();
   }
   
   function reparseGrid() {
-    currentGrid = stringToGrid(dungeon.select("#asciiBox").value());
+    currentGrid = stringToGrid(dungeon.select("#asciiBox1").value());
   }
   
   function gridToString(grid) {
@@ -60,14 +60,14 @@ var myp5 = new p5((dungeon) => {
   }
   
   dungeon.setup = () => {
-    numCols = dungeon.select("#asciiBox").attribute("rows") | 0;
-    numRows = dungeon.select("#asciiBox").attribute("cols") | 0;
+    numCols = dungeon.select("#asciiBox1").attribute("rows") | 0;
+    numRows = dungeon.select("#asciiBox1").attribute("cols") | 0;
   
-    dungeon.createCanvas(16 * numCols, 16 * numRows).parent("canvasContainer");
+    dungeon.createCanvas(16 * numCols, 16 * numRows).parent("canvasContainer1");
     dungeon.select("canvas").elt.getContext("2d").imageSmoothingEnabled = false;
   
-    dungeon.select("#reseedButton").mousePressed(reseed);
-    dungeon.select("#asciiBox").input(reparseGrid);
+    dungeon.select("#reseedButton1").mousePressed(reseed);
+    dungeon.select("#asciiBox1").input(reparseGrid);
   
     reseed();
   }
@@ -279,7 +279,7 @@ var myp5 = new p5((dungeon) => {
         } else {
           //Drawing the edges and also adding in some extra terrains in the lava.
           drawContext(grid, i, j, ".", 0, 9);
-          if(gridCode(grid, i, j, ".") == 0 && random() > 0.99){
+          if(gridCode(grid, i, j, ".") == 0 && dungeon.random() > 0.99){
             placeTile(i, j, 14, 9);
           }
         }
