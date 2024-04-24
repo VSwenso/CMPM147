@@ -9,22 +9,29 @@
 // In a longer project I like to put these in a separate file
 
 let seed = 0;
-let tilesetImage;
-let currentGrid = [];
-let numRows, numCols;
-
 let seed2 = 0;
+let tilesetImage;
 let tilesetImage2;
+let currentGrid = [];
 let currentGrid2 = [];
+let numRows, numCols;
 let numRows2, numCols2;
+
+
+
+//Dungeon generator
 
 var myp5 = new p5((d) => {
   d.preload = () => {
     tilesetImage = d.loadImage(
-      "https://cdn.glitch.com/25101045-29e2-407a-894c-e0243cd8c7c6%2FtilesetP8.png?v=1611654020438"
+      "tilesetP8.png"
     );
   }
-  
+
+  function placeTile(i, j, ti, tj) {
+    d.image(tilesetImage, 16 * j, 16 * i, 16, 16, 8 * ti, 8 * tj, 8, 8);
+  }
+
   function reseed() {
     seed = (seed | 0) + 1109;
     d.randomSeed(seed);
@@ -32,7 +39,7 @@ var myp5 = new p5((d) => {
     d.select("#seedReport").html("seed " + seed);
     regenerateGrid();
   }
-  
+
   function regenerateGrid() {
     d.select("#asciiBox").value(gridToString(generateGrid(numCols, numRows)));
     reparseGrid();
@@ -63,182 +70,263 @@ var myp5 = new p5((d) => {
     }
     return grid;
   }
-  
-  d.setup = () => {
-    numCols = d.select("#asciiBox").attribute("rows") | 0;
-    numRows = d.select("#asciiBox").attribute("cols") | 0;
-  
-    d.createCanvas(16 * numCols, 16 * numRows).parent("canvas-container1");
-    d.select('canvas').elt.getContext("2d").imageSmoothingEnabled = false;
-  
-    d.select("#reseedButton").mousePressed(reseed);
-    d.select("#asciiBox").input(reparseGrid);
-  
-    reseed();
-    };
 
-    d.draw = () => {
-      d.randomSeed(seed);
-      drawGrid(currentGrid);
-    }
-  
-  function placeTile(i, j, ti, tj) {
-    d.image(tilesetImage, 16 * j, 16 * i, 16, 16, 8 * ti, 8 * tj, 8, 8);
+  d.setup = () => {
+  numCols = d.select("#asciiBox").attribute("rows") | 0;
+  numRows = d.select("#asciiBox").attribute("cols") | 0;
+
+  d.createCanvas(16 * numCols, 16 * numRows).parent("canvas-container1");
+  d.select('canvas').elt.getContext("2d").imageSmoothingEnabled = false;
+
+  d.select("#reseedButton").mousePressed(reseed);
+  d.select("#asciiBox").input(reparseGrid);
+
+  reseed();
+  };
+
+  d.draw = () => {
+    d.randomSeed(seed);
+    drawGrid(currentGrid);
   }
-  
-  function gridCheck(gridData, xPos, yPos, targetVal) {
-    return (
-      xPos < gridData[0].length &&
-      xPos >= 0 &&
-      yPos < gridData.length &&
-      yPos >= 0 &&
-      gridData[yPos][xPos] == targetVal
-    );
-  }
-  
-  function gridCode(gridData, xPos, yPos, targetVal) {
-    return (
-      (gridCheck(gridData, xPos, yPos - 1, targetVal) << 3) +
-      (gridCheck(gridData, xPos + 1, yPos, targetVal) << 2) +
-      (gridCheck(gridData, xPos, yPos + 1, targetVal) << 1) +
-      (gridCheck(gridData, xPos - 1, yPos, targetVal) << 0)
-    );
-  }
-  
-  function drawContext(gridData, xPos, yPos, targetVal, xTileOffset, yTileOffset) {
-    const neighborState = gridCode(gridData, xPos, yPos, targetVal);
-    const [xOffset, yOffset] = lookupTable[neighborState];
-    placeTile(xPos, yPos, xTileOffset + xOffset, yTileOffset + yOffset);
-  }
-  
+
   function generateGrid(numCols, numRows) {
-    const noiseStrength = 1;
-    const noiseScale = 10;
-    const gridData = [];
-    const roomCenters = [];
-  
-    for (let yPos = 0; yPos < numRows; yPos++) {
-      const rowData = [];
-      for (let xPos = 0; xPos < numCols; xPos++) {
-        rowData.push("r"); // Rock
-      }
-      gridData.push(rowData);
+    //Determines which side is smaller to pick the maximum
+    //and the minimum size of rooms
+    let smaller = 1;
+    if (numCols >= numRows){
+      smaller = numRows;
+    } else {
+      smaller = numCols;
     }
-  
-    for (let yPos = 0; yPos < numRows; yPos++) {
-      for (let xPos = 0; xPos < numCols; xPos++) {
-        if (d.noise(yPos * noiseStrength, xPos * noiseStrength) * noiseScale > 8) {
-          roomCenters.push([yPos, xPos]);
+    //The size and number of rooms
+    let maxSize = d.floor(d.random(smaller/5, smaller/4));
+    let minSize = d.floor(d.random(smaller/10, maxSize));
+    let numRooms = d.floor(d.random(5, 10));
+    //The grid with the background areas
+    let grid = [];
+    for (let i = 0; i < numRows; i++) {
+      let row = [];
+      for (let j = 0; j < numCols; j++) {
+        if(d.noise(i/10, j/10) > 0.5){
+          row.push("-")
+        }
+        else{
+          row.push("_");
+        }
+      }
+      grid.push(row);
+    }
+    //This randomly locates and create rooms depending on the min and max size.
+    let rooms = [];
+    for (let i = 0; i < numRooms; i++){
+      const roomRows = d.floor(d.random() * (maxSize - minSize)) + minSize;
+      const roomCols = d.floor(d.random() * (maxSize - minSize)) + minSize;
+      const x = d.floor(d.random() * numCols - roomCols) + 1;
+      const y = d.floor(d.random() * numRows - roomRows) + 1;
+      const room = {x: x, y: y, width: roomCols, height: roomRows};
+      //This checks if the room is overlapping. If it is, the room is rebuilt before it is pushed to the sets of rooms
+      //to keep track the used spaces.
+      for(const r of rooms){
+        if(room.x < r.x + r.width && room.x + room.width > r.x && room.y < r.y + r.height && room.y + room.height > r.y){
+          i--;
+          continue;
+        }
+      }
+      rooms.push(room);
+      //This prints out the room into the grid.
+      for (let j = y; j < y + roomRows; j++){
+        for (let l = x; l < x + roomCols; l++){
+          grid[j][l] = ".";
+        }
+      }
+      
+      //This creates a passage between rooms, which creates an passage connecting the center of the room
+      //and the center of the room created previously
+      if (i > 0) {
+        const prevRoom = rooms[i - 1];
+        let prevCenterX = d.floor(prevRoom.x + prevRoom.width / 2);
+        let prevCenterY = d.floor(prevRoom.y + prevRoom.height / 2);
+        const centerX = d.floor(room.x + room.width / 2);
+        const centerY = d.floor(room.y + room.height / 2);
+        
+        while (prevCenterX !== centerX) {
+          grid[prevCenterY][prevCenterX] = ".";
+          if (prevCenterX < centerX) prevCenterX++;
+          else prevCenterX--;
+        }
+        while (prevCenterY !== centerY) {
+          grid[prevCenterY][prevCenterX] = ".";
+          if (prevCenterY < centerY) prevCenterY++;
+          else prevCenterY--;
         }
       }
     }
-  
-    let prevRoom = undefined;
-    while (roomCenters.length > 0) {
-      const currRoom = roomCenters.pop();
-      const roomWidth = d.floor(d.random(4, 10));
-      const roomHeight = d.floor(d.random(4, 8));
-      const startX = currRoom[1] - d.floor(roomWidth / 2);
-      const startY = currRoom[0] - d.floor(roomHeight / 2);
-  
-      for (let yPos = startY; yPos < startY + roomHeight; yPos++) {
-        for (let xPos = startX; xPos < startX + roomWidth; xPos++) {
-          if (gridCheck(gridData, xPos, yPos, "r")) {
-            gridData[yPos][xPos] = "2";
-          }
-        }
-      }
-  
-      if (prevRoom !== undefined) {
-        const hallWidth = d.abs(currRoom[1] - prevRoom[1]);
-        const hallHeight = d.abs(currRoom[0] - prevRoom[0]);
-  
-        for (let shiftAmount = 0; shiftAmount < hallWidth; shiftAmount++) {
-          if (currRoom[1] < prevRoom[1]) {
-            if (gridCheck(gridData, currRoom[1] + shiftAmount, currRoom[0], "r")) {
-              gridData[currRoom[0]][currRoom[1] + shiftAmount] = "3";
-            }
-          } else {
-            if (gridCheck(gridData, currRoom[1] - shiftAmount, currRoom[0], "r")) {
-              gridData[currRoom[0]][currRoom[1] - shiftAmount] = "3";
-            }
-          }
-        }
-  
-        for (let shiftAmount = 0; shiftAmount < hallHeight; shiftAmount++) {
-          if (currRoom[0] < prevRoom[0]) {
-            if (gridCheck(gridData, prevRoom[1], currRoom[0] + shiftAmount, "r")) {
-              gridData[currRoom[0] + shiftAmount][prevRoom[1]] = "3";
-            }
-          } else {
-            if (gridCheck(gridData, prevRoom[1], currRoom[0] - shiftAmount, "r")) {
-              gridData[currRoom[0] - shiftAmount][prevRoom[1]] = "3";
-            }
-          }
-        }
-      }
-  
-      prevRoom = currRoom;
-    }
-  
-    let chestNotPlaced = true;
-    while (chestNotPlaced) {
-      const xPos = d.floor(d.random(0, numCols));
-      const yPos = d.floor(d.random(0, numRows));
-      if (gridCheck(gridData, xPos, yPos, "2") && gridCode(gridData, xPos, yPos, "2") == 15) {
-        gridData[yPos][xPos] = "9";
-        chestNotPlaced = false;
-      }
-    }
-  
-    return gridData;
+    return grid;
   }
   
-  function drawGrid(gridData, lifeVal) {
-    d.background(128);
-  
-    for (let yPos = 0; yPos < gridData.length; yPos++) {
-      for (let xPos = 0; xPos < gridData[yPos].length; xPos++) {
-        if (gridData[yPos][xPos] == "r") {
-          placeTile(xPos, yPos, (d.millis() / 500) % 3, 18); // Animated rock
-        } else if (gridData[yPos][xPos] == "2") {
-          placeTile(xPos, yPos, d.random(1, 3), 23);
-          drawContext(gridData, xPos, yPos, "2", 14, 21);
-        } else if (gridData[yPos][xPos] == "3") {
-          placeTile(xPos, yPos, 22, 21);
-        } else if (gridData[yPos][xPos] == "9") {
-          placeTile(xPos, yPos, d.floor(d.random(1, 4)), d.random(21, 24));
-          placeTile(xPos, yPos, 4, 28);
-        }
-      }
-    }
-  }
-  
-  const lookupTable = [
-    [0, 0], [2, 2], [2, 0], [0, 0], [1, 1], [1, 2], [1, 0], [1, 1],
-    [3, 1], [3, 2], [3, 0], [3, 1], [2, 0], [2, 2], [2, 0], [2, 1]
+  // [1, 21] is dungeon wall
+  // [0, 9] is dungeon floor
+  const lookup = [
+    [5, 1], //0000 blank
+    [5, 0], //0001 up
+    [6, 1], //0010 right
+    [6, 0], //0011 up right
+    [5, 2], //0100 down
+    [5, 1], //0101 down & up 
+    [6, 2], //0110 down right
+    [5, 1], //0111 down, up, and right
+    [4, 1], //1000 left
+    [4, 0], //1001 up left
+    [5, 1], //1010 left right 10
+    [5, 1], //1011 left right up
+    [4, 2], //1100 down left
+    [5, 1], //1101 down left up
+    [5, 1], //1110 down left right
+    [5, 1] //1111 all direction
   ];
+  
+  //Check the coordination if it is in the area and if it is the target
+  function gridCheck(grid, i, j, target) {
+    if(i < 0 || j < 0 || i >= grid.length || j >= grid[i].length){
+      return false;
+    }
+    if(grid[i][j] == target){
+      return true;
+    }
+    return false;
+  }
+  
+  //Adds in to a string depending on if the target object is located around the coordinate.
+  //The string(binary) is converted into decimal and returned
+  function gridCode(grid, i, j, target) {
+    let binary = '';
+    binary += gridCheck(grid, i, j - 1, target) ? "1":"0";
+    binary += gridCheck(grid, i + 1, j, target)  ? "1":"0";
+    binary += gridCheck(grid, i, j + 1, target)  ? "1":"0";
+    binary += gridCheck(grid, i - 1, j, target)  ? "1":"0";
+    const index = parseInt(binary, 2);
+    return index
+  }
+  
+  //Gets the index number from gridCode and place tiles depending what the value is.
+  function drawContext(grid, i, j, target, dti, dtj) {
+    const code = gridCode(grid, i, j, target)
+    if(code == 5){
+      placeTile(i, j, dti + 5, dtj + 2);
+      placeTile(i, j, dti + 5, dtj);
+    } else if(code == 7){
+      placeTile(i, j, dti + 5, dtj + 2);
+      placeTile(i, j, dti + 6, dtj);
+    } else if (code == 10){
+      placeTile(i, j, dti + 4, dtj + 1);
+      placeTile(i, j, dti + 6, dtj + 1);
+    } else if (code == 11){
+      placeTile(i, j, dti + 4, dtj + 1);
+      placeTile(i, j, dti + 6, dtj);
+    } else if (code == 13){
+      placeTile(i, j, dti + 4, dtj + 2);
+      placeTile(i, j, dti + 5, dtj);
+    } else if (code == 14){
+      placeTile(i, j, dti + 4, dtj + 2);
+      placeTile(i, j, dti + 6, dtj + 1);
+    } else if (code == 15){
+      placeTile(i, j, dti + 4, dtj + 2);
+      placeTile(i, j, dti + 6, dtj);
+    }
+    else{
+      const [tiOffset, tjOffset] = lookup[code];
+      placeTile(i, j, dti + tiOffset, dtj + tjOffset);
+    }
+  }
+  
+  //Drawing grids.
+  function drawGrid(grid) {
+    d.background(128);
+    let entry = false;
+    let entryx;
+    let entryy;
+    let exitx;
+    let exity;
+    let exitdist = 0;
+    for(let i = 0; i < grid.length; i++) {
+      for(let j = 0; j < grid[i].length; j++) {
+        //Drawing lavas with animations by millis()
+        if (grid[i][j] == '_') {
+          let ti = d.floor(d.random(9, 11))
+          let tj = d.floor(d.random(18, 19))
+          placeTile(i, j, ti, tj);
+          placeTile(i, j, 9 + (d.millis()%((i+1)*(j+1)%7 * 1000) < (i*j%5 * 25) ? -1 : -2), 18 + (d.millis()%((i+1)*(j+1)%19 * 700) < (i*j%5 + 250) ? 1 : 2));
+        }
+        else if (grid[i][j] == '-') {
+          let ti = (d.floor(d.random(1, 3)))
+          let tj = d.floor(d.random(18, 19))
+          placeTile(i, j, ti, tj);
+          placeTile(i, j, 5 + (d.millis()%((i+1)*(j+1)%11 * 1000) > (i*j%5 * 50 + 400) ? 1 : 0), 19 + (d.millis()%((i+1)*(j+1)%13 * 1000) < (i*j%5 + 250) ? -1 : 0));
+        }
+        //Drawing the dungeon
+        if(gridCheck(grid, i, j, ".")){
+          placeTile(i, j, (d.floor(d.random(4))), 9);
+          //Adding extra treasure boxes as well.
+          if(gridCode(grid, i, j, ".") == 15 && d.random() < 0.05){
+            placeTile(i, j, 2, 30);
+          }
+          //Taking the farthest coordinate from the entance door where a door can be located.
+          if(gridCode(grid, i, j, ".") == 15 && gridCheck(grid, i-1, j-1, ".") && gridCheck(grid, i-1, j+1, ".") && 
+             gridCheck(grid, i+1, j-1, ".") && gridCheck(grid, i + 1, j + 1, ".") &&
+             entry == true){
+            if(exitdist < Math.sqrt(Math.pow(entryx - j, 2) + Math.pow(entryy - i, 2))){
+              exitdist = Math.sqrt(Math.pow(entryx - j, 2) + Math.pow(entryy - i, 2));
+              exitx = j;
+              exity = i
+            }
+          }
+          //Adding in entrance door once.
+          if(gridCode(grid, i, j, ".") == 15 && gridCheck(grid, i-1, j-1, ".") && gridCheck(grid, i-1, j+1, ".") && 
+             gridCheck(grid, i+1, j-1, ".") && gridCheck(grid, i + 1, j + 1, ".") &&
+             entry == false){
+            placeTile(i, j, 26, 26);
+            entry = true
+            entryx = j;
+            entryy = i;
+          }
+        } else {
+          //Drawing the edges and also adding in some extra terrains in the lava.
+          drawContext(grid, i, j, ".", 0, 9);
+          if(gridCode(grid, i, j, ".") == 0 && d.random() > 0.99){
+            placeTile(i, j, 14, 9);
+          }
+        }
+      }
+    }
+    //Placing the exit door to a location far as possible from the entrance.
+    placeTile(exity, exitx, 27, 26);
+  }
 
 }, 'p5sketch');
 
 
+//Overworld generator
 var myp5 = new p5((o) => {
   o.preload = () => {
     tilesetImage2 = o.loadImage(
-      "https://cdn.glitch.com/25101045-29e2-407a-894c-e0243cd8c7c6%2FtilesetP8.png?v=1611654020438"
+      "tilesetP8.png"
     );
+  }
+
+  function placeTile2(i, j, ti, tj) {
+    o.image(tilesetImage2, 16 * j, 16 * i, 16, 16, 8 * ti, 8 * tj, 8, 8);
   }
 
   function reseed2() {
     seed2 = (seed2 | 0) + 1109;
     o.randomSeed(seed2);
     o.noiseSeed(seed2);
-    o.select("#seedReport").html("seed " + seed2);
+    o.select("#seedReport2").html("seed " + seed2);
     regenerateGrid2();
   }
-  
+
   function regenerateGrid2() {
-    o.select("#asciiBox2").value(gridToString2(generateGrid(numCols2, numRows2)));
+    o.select("#asciiBox2").value(gridToString2(generateWorldGrid(numCols2, numRows2)));
     reparseGrid2();
   }
   
@@ -247,160 +335,192 @@ var myp5 = new p5((o) => {
   }
   
   function gridToString2(grid) {
-    let rows = [];
+    let rows2 = [];
     for (let i = 0; i < grid.length; i++) {
-      rows.push(grid[i].join(""));
+      rows2.push(grid[i].join(""));
     }
-    return rows.join("\n");
+    return rows2.join("\n");
   }
   
   function stringToGrid2(str) {
-    let grid = [];
-    let lines = str.split("\n");
-    for (let i = 0; i < lines.length; i++) {
-      let row = [];
-      let chars = lines[i].split("");
-      for (let j = 0; j < chars.length; j++) {
-        row.push(chars[j]);
+    let grid2 = [];
+    let lines2 = str.split("\n");
+    for (let i = 0; i < lines2.length; i++) {
+      let row2 = [];
+      let chars2 = lines2[i].split("");
+      for (let j = 0; j < chars2.length; j++) {
+        row2.push(chars2[j]);
       }
-      grid.push(row);
+      grid2.push(row2);
     }
-    return grid;
+    return grid2;
   }
-  
+
   o.setup = () => {
-    numCols2 = o.select("#asciiBox2").attribute("rows") | 0;
-    numRows2 = o.select("#asciiBox2").attribute("cols") | 0;
-  
-    o.createCanvas(16 * numCols2, 16 * numRows2).parent("canvas-container2");
-    o.select("canvas").elt.getContext("2d").imageSmoothingEnabled = false;
-  
-    o.select("#reseedButton2").mousePressed(reseed2);
-    o.select("#asciiBox2").input(reparseGrid2);
-  
-    reseed2();
-    };
-  
-    o.draw = () => {
-      o.randomSeed(seed2);
-      drawGrid(currentGrid2);
-    }
-  
-  function placeTile2(i, j, ti, tj) {
-    o.image(tilesetImage, 16 * j, 16 * i, 16, 16, 8 * ti, 8 * tj, 8, 8);
+  numCols2 = o.select("#asciiBox2").attribute("rows") | 0;
+  numRows2 = o.select("#asciiBox2").attribute("cols") | 0;
+
+  o.createCanvas(16 * numCols2, 16 * numRows2).parent("canvas-container2");
+  o.select("canvas").elt.getContext("2d").imageSmoothingEnabled = false;
+
+  o.select("#reseedButton2").mousePressed(reseed2);
+  o.select("#asciiBox2").input(reparseGrid2);
+
+  reseed2();
+  };
+
+  o.draw = () => {
+    o.randomSeed(seed2);
+    drawWorldGrid(currentGrid2);
   }
-  
-  
-  function generateGrid(numCols, numRows) {
+
+  function generateWorldGrid(numCols, numRows) {
+    //The grid with the different biomes and items
     let grid = [];
     for (let i = 0; i < numRows; i++) {
       let row = [];
       for (let j = 0; j < numCols; j++) {
-        // Generating a Perlin noise value for the cell
-        let noiseValue = o.noise(i / 20, j / 20);
-  
-        // Using the Perlin noise value to select one of four codes
-        let code;
-        if (noiseValue < 0.3) {
-          code = ".";
-        } else if (noiseValue < 0.6) {
-          code = "_";
-        } else if (noiseValue < 0.8) {
-          code = ":";
-        } else {
-          code = ";";
+        if(o.noise(i/10, j/10) > 0.5){
+          row.push("-");
         }
-  
-        row.push(code);
+        else if(o.noise(i/10, j/10) < 0.3){
+          row.push("W");
+        }
+        else{
+          row.push("_");
+        }
       }
       grid.push(row);
     }
-  
     return grid;
   }
   
-  function drawGrid(grid) {
+  // [1, 21] is dungeon wall
+  // [0, 9] is dungeon floor
+  const lookup = [
+    [5, 1], //0000 blank
+    [5, 0], //0001 up
+    [6, 1], //0010 right
+    [6, 0], //0011 up right
+    [5, 2], //0100 down
+    [5, 1], //0101 down & up 
+    [6, 2], //0110 down right
+    [5, 1], //0111 down, up, and right
+    [4, 1], //1000 left
+    [4, 0], //1001 up left
+    [5, 1], //1010 left right 10
+    [5, 1], //1011 left right up
+    [4, 2], //1100 down left
+    [5, 1], //1101 down left up
+    [5, 1], //1110 down left right
+    [5, 1] //1111 all direction
+  ];
+  
+  //Check the coordination if it is in the area and if it is the target
+  function gridCheck(grid, i, j, target) {
+    if(i < 0 || j < 0 || i >= grid.length || j >= grid[i].length){
+      return false;
+    }
+    if(grid[i][j] == target){
+      return true;
+    }
+    return false;
+  }
+  
+  //Adds in to a string depending on if the target object is located around the coordinate.
+  //The string(binary) is converted into decimal and returned
+  function gridCode(grid, i, j, target) {
+    let binary = '';
+    binary += gridCheck(grid, i, j - 1, target) ? "1":"0";
+    binary += gridCheck(grid, i + 1, j, target)  ? "1":"0";
+    binary += gridCheck(grid, i, j + 1, target)  ? "1":"0";
+    binary += gridCheck(grid, i - 1, j, target)  ? "1":"0";
+    const index = parseInt(binary, 2);
+    return index
+  }
+  
+  //Gets the index number from gridCode and place tiles depending what the value is.
+  function drawContext(grid, i, j, target, dti, dtj) {
+    const code = gridCode(grid, i, j, target)
+    if(code == 5){
+      placeTile2(i, j, dti + 5, dtj + 2);
+      placeTile2(i, j, dti + 5, dtj);
+    } else if(code == 7){
+      placeTile2(i, j, dti + 5, dtj + 2);
+      placeTile2(i, j, dti + 6, dtj);
+    } else if (code == 10){
+      placeTile2(i, j, dti + 4, dtj + 1);
+      placeTile2(i, j, dti + 6, dtj + 1);
+    } else if (code == 11){
+      placeTile2(i, j, dti + 4, dtj + 1);
+      placeTile2(i, j, dti + 6, dtj);
+    } else if (code == 13){
+      placeTile2(i, j, dti + 4, dtj + 2);
+      placeTile2(i, j, dti + 5, dtj);
+    } else if (code == 14){
+      placeTile2(i, j, dti + 4, dtj + 2);
+      placeTile2(i, j, dti + 6, dtj + 1);
+    } else if (code == 15){
+      placeTile2(i, j, dti + 4, dtj + 2);
+      placeTile2(i, j, dti + 6, dtj);
+    }
+    else{
+      const [tiOffset, tjOffset] = lookup[code];
+      placeTile2(i, j, dti + tiOffset, dtj + tjOffset);
+    }
+  }
+  
+  //Drawing grids.
+  function drawWorldGrid(grid) {
     o.background(128);
-  
-    // Adjusting parameters for variation
-    const g = 10;
-    const t = o.millis() / 1000.0;
-  
-    // Rendering tiles based on grid contents
-    o.noStroke();
-    for (let i = 0; i < grid.length; i++) {
-      for (let j = 0; j < grid[i].length; j++) {
-        if (gridCheck(grid, i, j, ".")) {
-          placeTile2(i, j, 0, 3);
-        } else if (gridCheck(grid, i, j, ":")) {
-          placeTile2(i, j, (4 * o.pow(o.noise(t / 10, i, j / 4 + t), 2)) | 0, 14);
-          drawContext2(grid, i, j, ":", 9, 3, true);
-        } else {
-          placeTile2(i, j, (4 * o.pow(o.random(), g)) | 0, 0);
-          drawContext2(grid, i, j, ".", 4, 0);
+    for(let i = 0; i < grid.length; i++) {
+      for(let j = 0; j < grid[i].length; j++) {
+        //Drawing the water, andl also animating it using % operators and millis().
+        if(grid[i][j] == 'W'){
+          placeTile2(i, j, 0, 13);
+        
+          placeTile2(i, j, 0 + (o.millis()% (((i * j) % 17) * 5000) < (((i * j) % 5) + 5) * 50 ? 3 : 0), 13);
+        }
+        //Drawing the low lands
+        if(grid[i][j] == '-'){
+          placeTile2(i, j, o.floor(o.random(0, 4)), 1);
+        }
+        else{
+          drawContext(grid, i, j, "-", 0, 6);
+        }
+        //Drawing the high lands with the houses and towers.
+        //Also drawing the trees in the low lands
+        //Drawing ground
+        if (grid[i][j] == '_') {
+          let ti = o.floor(o.random(4))
+          let tj = 0
+          placeTile2(i, j, ti, tj);
+          //Drawing the houses
+          if(gridCode(grid, i, j, "_") == 15 && o.random() > 0.9){
+            placeTile2(i, j, 26, 0);
+          }
+        }
+        else{
+          //Drawing the edges
+          drawContext(grid, i, j, "_", 5, 0)
+          //Drawing the trees
+          if(gridCode(grid, i, j, "_") == 0 && grid[i][j] != "W"){
+            let ti = 14
+            let tj = o.floor(o.random(3))
+            placeTile2(i, j, ti, tj);
+          }
+        }
+        //Drawing the towers
+        if(gridCode(grid, i, j, "_") == 15 && o.random() > 0.99){
+          placeTile2(i, j, 28, 1);
+          placeTile2(i - 1, j, 28, 0);
         }
       }
     }
   }
-  
-  function gridCheck(grid, i, j, target) {
-    // Checking if location i,j is inside the grid (not out of bounds) and if grid[i][j] == target. Otherwise, return false.
-    return (
-      i >= 0 &&
-      i < grid.length &&
-      j >= 0 &&
-      j < grid[i].length &&
-      grid[i][j] == target
-    );
-  }
-  
-  function gridCode(grid, i, j, target) {
-    // Calculating the 4-bit code based on neighboring cells
-    return (
-      (gridCheck(grid, i - 1, j, target) << 0) +
-      (gridCheck(grid, i, j - 1, target) << 1) +
-      (gridCheck(grid, i, j + 1, target) << 2) +
-      (gridCheck(grid, i + 1, j, target) << 3)
-    );
-  }
-  
-  function drawContext2(grid, i, j, target, dti, dtj, invert = false) {
-    // Getting the code for this location and target
-    let code = gridCode(grid, i, j, target);
-  
-    // Inverting the code if specified
-    if (invert) {
-      code = 15 - code;
-    }
-  
-    // Placing the appropriate tile based on the code
-    let [tiOffset, tjOffset] = lookup[code];
-    placeTile2(i, j, dti + tiOffset, dtj + tjOffset);
-  }
-  
-  // Defining the tile offset pairs
-  const lookup = [
-    [1, 1],
-    [1, 0],
-    [0, 1],
-    [0, 0],
-    [2, 1], 
-    [2, 0], 
-    [1, 1],
-    [1, 0],
-    [1, 2], 
-    [1, 1],
-    [0, 2], 
-    [0, 1],
-    [2, 2], 
-    [2, 1],
-    [1, 2],
-    [1, 1]
-  ];
 
 }, 'p5sketch');
-
-/* testing testing 
+/*
 let seed = 0;
 let tilesetImage;
 let currentGrid = [];
@@ -626,7 +746,7 @@ var myp5 = new p5((o) => {
     seed_2 = (seed_2 | 0) + 1109; 
     o.randomSeed(seed_2); 
     o.noiseSeed(seed_2);
-    o.select("#seedReport").html("seed" + seed_2); 
+    o.select("#seedReport_2").html("seed" + seed_2); 
     regenerateGrid_2(); 
   }
 
@@ -791,8 +911,8 @@ var myp5 = new p5((o) => {
     [1, 1]
   ];
 
-}, 'p5sketch'); 
-/* End of testtttt
+}, 'p5sketch');
+/* end of test 
 
 /*
 const VALUE1 = 1;
