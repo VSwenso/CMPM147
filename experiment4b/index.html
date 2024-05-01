@@ -2,7 +2,7 @@
 <html>
 <head>
 	<!-- This title is used for tabs and bookmarks -->
-	<title>Experiment 4 - Infinite Worlds</title>
+	<title>Experiment 4a - Infinite Worlds</title>
 
 	<!-- Use UTF character set, a good idea with any webpage -->
 	<meta charset="UTF-8" />
@@ -25,43 +25,51 @@
 	<!-- Use me for a JavaScript OOP Project -->
 	<script type="text/javascript" src="./js/project.js" DEFER></script>
 	<!-- Use me for a p5.js project -->
+	<script type="text/javascript" src="./js/xxhash.min.js" DEFER></script>
+	<script type="text/javascript" src="./js/engine.js" DEFER></script>
 	<script type="text/javascript" src="./js/sketch.js" DEFER></script>
+	
 </head>
-<body style="background-color: #bde9fc;">
+<body>
 	<!-- Style this page by changing the CSS in ../css/site.css or css/experiment.css -->
 	<main id="content">
 		<section>
 
-			<h1>Experiment 4 - Inifinite Worlds</h1>
+			<h1>Experiment 4a - Infinite Worlds</h1>
 
 			<div class="minor-section">
 				<div id="container">
-					<!-- canvas will be added here -->
+					
 				</div>
                 <div class="fullscreen-box">
                     <button id="fullscreen">Fullscreen</button>
                 </div>
 			</div>
-			
-			<div class="minor-section" style="background-color: #eff9f0;">
+
+			<div class="minor-section">
 				<h2>Description</h2>
-				<p>For this experiemnt  I worked with my partner Ani where we my goal was to mimic the look and rippling effect of a thick ooze, 
-					kinda like Acid or Lava with like some variation of rock poking out through the sludge
+				<p>This was the first of three generators that I created with my partner, Yahli. This generator creates an infinite chess board, where the player is able to
+					place down random chess pieces. When a piece is generated, a random color effect occurs on the surrounding area.
 				</p>
 			</div>
 
-			<div class="minor-section" style="background-color: #eff9f0;">
+			<div class="minor-section">
 				<h2>Technical</h2>
-				<p>For the ripple effect I created a wave like motion </p>
+				<p>To create this generator, the board was created user a grid pattern of alternating brown and white color, with slight alterations to the brown intensity based on
+					the seed. Additionally, the chess piece is created by randomly choosing between a set of chess pieces, which then triggers the generation of colors within a certain
+					radius around the piece. 
+				</p>
 			</div>
 
-			<div class="minor-section" style="background-color: #eff9f0;">
+			<div class="minor-section">
 				<h2>Reflection</h2>
-				<p>Each person that worked on the code should reflect on the process, the difficulties, and the successes of the experiment.</p>
+				<p>Overall, I am happy with the creation of this part of the experiment. We believed that this generator fulfills each requirement from the assignement. Although,
+					we believe that we could've added additionally details to the generator as well as possible interactions between chess pieces.
+				</p>
 			</div>
 
 		</section>
-		<nav id="links" class="minor-section" style="background-color: #bde9fc;">
+		<nav id="links" class="minor-section">
 			<!-- Put link back to homepage here. -->
             <ul>
                 <li><a href="../index.html">Home</a></li>

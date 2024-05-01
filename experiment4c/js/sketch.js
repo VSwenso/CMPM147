@@ -1,10 +1,3 @@
-// sketch.js - purpose and description here
-// Author: Tory Swenson
-// Date: 04/27/24
-
-// Here is how you might set up an OOP p5.js project
-// Note that p5.js looks for a file called sketch.js
-
 "use strict";
 
 /* global XXH, p3_tileWidth, p3_tileHeight */
@@ -105,9 +98,8 @@ function p3_tileClicked(i, j) {
 function p3_drawSelectedTile(i, j) {
   // noFill();
   fill(0);
-  text("tile " + [i, j], 0, 0);
+  //text("tile " + [i, j], 0, 0);
 }
 
 
 function p3_drawAfter() {}
-
