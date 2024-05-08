@@ -36,7 +36,7 @@ function getInspirations() {
     let aspectRatio = inspiration.image.width / inspiration.image.height;
     let totalRectArea = width * height; // Total area to cover with rectangles
     let totalInspirationArea = inspiration.image.width * inspiration.image.height;
-    let scaleFactor = Math.sqrt(totalRectArea / totalInspirationArea); // Scale factor to cover canvas
+    let scaleFactor = 10; // Scale factor to cover canvas
     
     let x = 0;
     let y = 0;
