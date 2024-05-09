@@ -36,33 +36,49 @@
 		<section>
 
 			<h1>Experiment 5 - Evolutionary Impressions</h1>
+			<div class="minor-section results">
+                <div class="results-top">
+                    <div class="image-container">
+                        <p id="original"></p>
+                        <p class="caption"></p>
+                    </div>
+                    <div class="image-container">
+                        <p id="active"></p>
+                        <p>Active Image</p>
+                    </div>
+                    <div class="image-container">
+                        <p id="best"></p>
+                        <p>Best Image</p>
+                    </div>
+                </div>
 
-		<div class="minor-section">
-			<select id="shapeOptions">
-				<option value="rect">Rectangles</option>
-			  </select>
-				<body>
-				  <select id="dropper"></select>
-				  <button id="restart">
-					restart
-				  </button>
-				  <p>
-					Mutation rate (<span id="rate"></span>%):<br /><input
-					  id="slider"
-					  type="range"
-					  min="1"
-					  max="100"
-					  value="100"
-					/>
-				  </p>
-				  <p id="active"></p>
-				  <p>Active score: <span id="activeScore"></span></p>
-				  <p>Exploration rate: <span id="fpsCounter"></span> fps</p>
-				  <p id="best"></p>
-				  <p>Best score: <span id="bestScore"></span></p>
-				  <p id="memory" data-max-items="16"></p>
-				</body>
-		</div>
+                <div class="controls">
+                    <div class="controls-col1">
+                        <select id="dropper"></select>
+                        <button id="restart">
+                        restart
+                        </button>
+                        <p>
+                        Mutation rate (<span id="rate"></span>%):<br /><input
+                            id="slider"
+                            type="range"
+                            min="1"
+                            max="100"
+                            value="100"
+                        />
+                        </p>
+                    </div>
+                    <div class="controls-col2">
+                        <p>Active score: <span id="activeScore"></span></p>
+                        <p>Exploration rate: <span id="fpsCounter"></span> fps</p>
+                        <p>Best score: <span id="bestScore"></span></p>
+                    </div>
+                </div>
+
+                <div class="results-bottom">
+                    <p id="memory" data-max-items="28"></p>
+                </div>
+			</div>
 			<div class="minor-section">
 				<h2>Description</h2>
 				<p> Experiment 05 main goal is to create a genereator which takes an image and 
