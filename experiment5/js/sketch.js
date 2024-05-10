@@ -2,9 +2,12 @@
 // Author: Tory Swenson
 // Date: 05/07/24
 
+// Here is how you might set up an OOP p5.js project
+// Note that p5.js looks for a file called sketch.js
+
 /* exported preload, setup, draw */
 /* global memory, dropper, restart, rate, slider, activeScore, bestScore, fpsCounter */
-//code from Wes Modes 
+/* global getInspirations, initDesign, renderDesign, mutateDesign */
 
 let bestDesign;
 let currentDesign;
@@ -15,6 +18,7 @@ let currentInspirationPixels;
 
 function preload() {
   
+
   let allInspirations = getInspirations();
 
   for (let i = 0; i < allInspirations.length; i++) {
@@ -25,7 +29,6 @@ function preload() {
     option.innerHTML = insp.name;
     dropper.appendChild(option);
   }
-  
   dropper.onchange = e => inspirationChanged(allInspirations[e.target.value]);
   currentInspiration = allInspirations[0];
 
@@ -39,6 +42,8 @@ function inspirationChanged(nextInspiration) {
   memory.innerHTML = "";
   setup();
 }
+
+
 
 function setup() {
   currentCanvas = createCanvas(width, height);
@@ -62,6 +67,8 @@ function evaluate() {
   }
   return 1/(1+error/n);
 }
+
+
 
 function memorialize() {
   let url = currentCanvas.canvas.toDataURL();
