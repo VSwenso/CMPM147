@@ -61,12 +61,19 @@ function getInspirations() {
     return design;
   }
   function renderDesign(design, inspiration) {
-    noStroke();
-    for(let box of design.fg) {
-        fill(box.fill);
-        rect(box.x, box.y, box.w, box.h);
-    }
+   // Clear the canvas
+   background(design.bg);
+   noStroke();
+   
+   // Render foreground objects
+   for(let box of design.fg) {
+       // Get the fill color from the inspiration image
+       let fillColor = inspiration.image.get(box.x / 2, box.y / 2); // Adjusted coordinates
+       fill(fillColor, 128);
+       rect(box.x, box.y, box.w, box.h);
+   }
 }
+
   
   function mutateDesign(design, inspiration, rate) {
     design.bg = mut(design.bg, 0, 255, rate); // Color mutation for background
@@ -75,6 +82,9 @@ function getInspirations() {
         box.y = mut(box.y, 0, height, rate);
         box.w = mut(box.w, 0, width/10, rate);
         box.h = mut(box.h, 0, height/10, rate);
+        // Use inspiration data if needed
+        let fillColor = inspiration.image.get(box.x / 2, box.y / 2); // Adjusted coordinates
+        box.fill = fillColor;
     }
 }
   

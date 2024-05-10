@@ -103,9 +103,9 @@ function draw() {
 randomSeed(mutationCount++);
 currentDesign = JSON.parse(JSON.stringify(bestDesign));
 rate.innerHTML = slider.value;
-mutateDesign(currentDesign, slider.value/100.0); // Pass only design and rate
+mutateDesign(currentDesign, currentInspiration, slider.value/100.0); // Pass currentInspiration
 randomSeed(0);
-renderDesign(currentDesign); // Pass only design
+renderDesign(currentDesign, currentInspiration); // Pass currentInspiration
 let nextScore = evaluate();
 activeScore.innerHTML = nextScore;
 if (nextScore > currentScore) {
