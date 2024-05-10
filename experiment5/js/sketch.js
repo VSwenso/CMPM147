@@ -18,23 +18,16 @@ let currentInspirationPixels;
 let inspirations;
 
 function preload() {
-  
-
   let allInspirations = getInspirations();
-
   for (let i = 0; i < allInspirations.length; i++) {
-    let insp = allInspirations[i];
-    insp.image = loadImage(insp.assetUrl);
     let option = document.createElement("option");
     option.value = i;
-    option.innerHTML = insp.name;
+    option.innerHTML = allInspirations[i].name;
     dropper.appendChild(option);
   }
   dropper.onchange = e => inspirationChanged(allInspirations[e.target.value]);
   currentInspiration = allInspirations[0];
-
-  restart.onclick = () =>
-    inspirationChanged(allInspirations[dropper.value]);
+  restart.onclick = () => inspirationChanged(allInspirations[dropper.value]);
 }
 
 function inspirationChanged(nextInspiration) {
@@ -44,33 +37,21 @@ function inspirationChanged(nextInspiration) {
   setup();
 }
 
-
-
 function setup() {
-  let allInspirations = getInspirations();
-  for (let i = 0; i < allInspirations.length; i++) {
-    let insp = allInspirations[i];
-    insp.image = loadImage(insp.assetUrl);
-    let option = document.createElement("option");
-    option.value = i;
-    option.innerHTML = insp.name;
-    dropper.appendChild(option);
-  }
-
-  dropper.onchange = (e) => inspirationChanged(allInspirations[e.target.value]);
-  currentInspiration = allInspirations[0];
-  restart.onclick = () => inspirationChanged(allInspirations[dropper.value]);
-
   currentCanvas = createCanvas(width, height);
   currentCanvas.parent(document.getElementById("active"));
   currentScore = Number.NEGATIVE_INFINITY;
+
+  currentInspiration.image = loadImage(currentInspiration.assetUrl, loadedImages);
+}
+
+function loadedImages() {
   currentDesign = initDesign(currentInspiration);
   bestDesign = currentDesign;
   image(currentInspiration.image, 0, 0, width, height);
   loadPixels();
   currentInspirationPixels = pixels;
 }
-
 function evaluate() {
   loadPixels();
 
@@ -130,3 +111,4 @@ if (nextScore > currentScore) {
 }
 fpsCounter.innerHTML = Math.round(frameRate());
 }
+
