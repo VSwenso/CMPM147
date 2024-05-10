@@ -25,7 +25,7 @@ function getInspirations() {
       },
     ];
   }
-  
+   
   function initDesign(inspiration) {
     resizeCanvas(inspiration.image.width / 2, inspiration.image.height / 2);
     let design = {
@@ -61,33 +61,22 @@ function getInspirations() {
     return design;
   }
   function renderDesign(design, inspiration) {
-   noStroke();
+    noStroke();
     for(let box of design.fg) {
-      if (design.shape == "ellipse") { 
-        fill(box.fill);
-        ellipse(box.x, box.y, box.w);
-        console.log(box.w / 2, box.h / 2);
-      }
-      else if (design.shape == "rectangle") { 
         fill(box.fill);
         rect(box.x, box.y, box.w, box.h);
-        console.log(box.w / 2, box.h / 2);
-      }
-      fill(box.fill);
-      rect(box.x, box.y, box.w, box.h);
-      console.log(box.w / 2, box.h / 2);
     }
-  }
+}
   
   function mutateDesign(design, inspiration, rate) {
-    design.backColor = mut(design.backColor, 0, 255, rate); //color
+    design.bg = mut(design.bg, 0, 255, rate); // Color mutation for background
     for(let box of design.fg) {
-      box.x = mut(box.x, 0, width, rate);
-      box.y = mut(box.y, 0, height, rate);
-      box.w = mut(box.w, 0, width/10, rate);
-      box.h = mut(box.h, 0, height/10, rate);
+        box.x = mut(box.x, 0, width, rate);
+        box.y = mut(box.y, 0, height, rate);
+        box.w = mut(box.w, 0, width/10, rate);
+        box.h = mut(box.h, 0, height/10, rate);
     }
-  }
+}
   
   function mut(num, min, max, rate) {
     return constrain(randomGaussian(num, (rate * (max - min)) / 20), min, max);

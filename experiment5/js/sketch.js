@@ -97,25 +97,22 @@ function memorialize() {
 let mutationCount = 0;
 
 function draw() {
-  
   if(!currentDesign) {
     return;
-  }
-  randomSeed(mutationCount++);
-  currentDesign = JSON.parse(JSON.stringify(bestDesign));
-  rate.innerHTML = slider.value;
-  mutateDesign(currentDesign, currentInspiration, slider.value/100.0);
-  
-  randomSeed(0);
-  renderDesign(currentDesign, currentInspiration);
-  let nextScore = evaluate();
-  activeScore.innerHTML = nextScore;
-  if (nextScore > currentScore) {
+}
+randomSeed(mutationCount++);
+currentDesign = JSON.parse(JSON.stringify(bestDesign));
+rate.innerHTML = slider.value;
+mutateDesign(currentDesign, slider.value/100.0); // Pass only design and rate
+randomSeed(0);
+renderDesign(currentDesign); // Pass only design
+let nextScore = evaluate();
+activeScore.innerHTML = nextScore;
+if (nextScore > currentScore) {
     currentScore = nextScore;
     bestDesign = currentDesign;
     memorialize();
     bestScore.innerHTML = currentScore;
-  }
-  
-  fpsCounter.innerHTML = Math.round(frameRate());
+}
+fpsCounter.innerHTML = Math.round(frameRate());
 }
