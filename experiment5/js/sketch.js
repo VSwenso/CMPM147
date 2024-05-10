@@ -47,7 +47,6 @@ function inspirationChanged(nextInspiration) {
 
 
 function setup() {
-  pixelDensity(1);
   let allInspirations = getInspirations();
   for (let i = 0; i < allInspirations.length; i++) {
     let insp = allInspirations[i];
