@@ -61,7 +61,6 @@ function setup() {
   currentInspiration = allInspirations[0];
   restart.onclick = () => inspirationChanged(allInspirations[dropper.value]);
 
- 
   currentCanvas = createCanvas(width, height);
   currentCanvas.parent(document.getElementById("active"));
   currentScore = Number.NEGATIVE_INFINITY;
@@ -131,4 +130,3 @@ if (nextScore > currentScore) {
 }
 fpsCounter.innerHTML = Math.round(frameRate());
 }
-
