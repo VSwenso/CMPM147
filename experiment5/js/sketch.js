@@ -15,7 +15,7 @@ let currentScore;
 let currentInspiration;
 let currentCanvas;
 let currentInspirationPixels;
-let inspirations; // Define a global variable to hold the inspirations data
+let inspirations;
 
 function preload() {
   
@@ -47,12 +47,26 @@ function inspirationChanged(nextInspiration) {
 
 
 function setup() {
+  let allInspirations = getInspirations();
+  for (let i = 0; i < allInspirations.length; i++) {
+    let insp = allInspirations[i];
+    insp.image = loadImage(insp.assetUrl);
+    let option = document.createElement("option");
+    option.value = i;
+    option.innerHTML = insp.name;
+    dropper.appendChild(option);
+  }
+
+  dropper.onchange = (e) => inspirationChanged(allInspirations[e.target.value]);
+  currentInspiration = allInspirations[0];
+  restart.onclick = () => inspirationChanged(allInspirations[dropper.value]);
+
   currentCanvas = createCanvas(width, height);
   currentCanvas.parent(document.getElementById("active"));
   currentScore = Number.NEGATIVE_INFINITY;
   currentDesign = initDesign(currentInspiration);
   bestDesign = currentDesign;
-  image(currentInspiration.image, 0,0, width, height);
+  image(currentInspiration.image, 0, 0, width, height);
   loadPixels();
   currentInspirationPixels = pixels;
 }
