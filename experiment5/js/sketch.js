@@ -15,6 +15,7 @@ let currentScore;
 let currentInspiration;
 let currentCanvas;
 let currentInspirationPixels;
+let inspirations; // Define a global variable to hold the inspirations data
 
 function preload() {
   
