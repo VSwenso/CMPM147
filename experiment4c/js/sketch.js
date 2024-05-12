@@ -3,16 +3,16 @@
 /* global XXH, p3_tileWidth, p3_tileHeight */
 /* exported p3_preload, p3_setup, p3_worldKeyChanged, p3_tileClicked, p3_drawBefore, p3_drawTile, p3_drawSelectedTile, p3_drawAfter */
 
-let rockTextures = [];
+let rockPhotos = [];
 let rocks = {}; // Stores data for each boat
 
 function p3_preload() {
-  rockTextures.push(loadImage("https://cdn.glitch.global/036b055e-2d7e-43af-9f58-0dfb921e6a93/better%20rock%20asset(2).png?v=1714531441224"));
-  rockTextures.push(loadImage("https://cdn.glitch.global/036b055e-2d7e-43af-9f58-0dfb921e6a93/Better%20rock%20asset.png?v=1714531387327"));
+  //rock assets are from Evan Gassman on Vecteezy
+  rockPhotos.push(loadImage("https://cdn.glitch.global/036b055e-2d7e-43af-9f58-0dfb921e6a93/better%20rock%20asset(2).png?v=1714531441224"));
+  rockPhotos.push(loadImage("https://cdn.glitch.global/036b055e-2d7e-43af-9f58-0dfb921e6a93/Better%20rock%20asset.png?v=1714531387327"));
 }
 
 function p3_setup() {}
-
 let worldSeed;
 
 function p3_worldKeyChanged(key) {
@@ -31,75 +31,115 @@ function p3_tileHeight() {
 }
 
 function p3_drawBefore() {
-  background("#712F79");
+ // Create a linear gradient between black and purple
+  const gradientHeight = height;
+  const gradientWidth = width;
+
+  // Create the linear gradient
+  const gradient = drawingContext.createLinearGradient(
+    0, 0, 0, gradientHeight
+  );
+
+  // Define the gradient colors and positions
+  gradient.addColorStop(0, color(0, 0, 0)); // Black at the top
+  gradient.addColorStop(1, color(113, 47, 121)); // Purple at the bottom
+
+  // Set the gradient as the background
+  drawingContext.fillStyle = gradient;
+  drawingContext.fillRect(0, 0, gradientWidth, gradientHeight);
 }
 
 function p3_drawTile(i, j) {
   noStroke();
 
-  //colors
-  const veryLightOozeColor = color("#F54952"); 
-  const lightOozeColor = color("#AE2D68"); 
-  const midtoneOozeColor = color("#660F56"); 
-  const darkOozeColor = color("#280659"); 
+  // Define colors for the ooze
+  const veryLightOozeColor = color("#F54952");
+  const lightOozeColor = color("#AE2D68");
+  const midtoneOozeColor = color("#660F56");
+  const darkOozeColor = color("#280659");
 
-  // Calculate ripple effect 
-  const rippleFrequency = 0.2; 
-  const rippleSpeed = 0.00110; 
+  // Calculating ripple effect
+  const rippleFrequency = 0.2;
+  const rippleSpeed = 0.00110;
   const rippleAmplitude = 5;
-  const currentTime = millis();
-  const ripplePhase = currentTime * rippleSpeed + i * rippleFrequency;
-  const rippleEffect = sin(ripplePhase) * rippleAmplitude;
+  const currTime = millis(); //using millis
+  const directionSpeed = 0.0002; // Adjust this value to control the speed of direction change
+  const directionPhase = currTime * directionSpeed;
+  const ripplePhase = currTime * rippleSpeed - i * rippleFrequency * cos(directionPhase); 
+  const rippleEffect = sin(ripplePhase) * rippleAmplitude; //sin function
 
-  // Interpolate between colors 
+  // Calculating color phase
+  const colorSpeed = 0.0007; // Adjust this value to control the speed of color cycling
+  const colorPhase = currTime * colorSpeed;
+
+  // Interpolate between colors - ripple effect and color phase
   let colorEffect;
   if (rippleEffect < -2.5) {
-    colorEffect = lerpColor(veryLightOozeColor, lightOozeColor, map(rippleEffect, -5, -2.5, 0, 1));
+    colorEffect = lerpColor(
+      lerpColor(veryLightOozeColor, lightOozeColor, colorPhase % 1),
+      lerpColor(lightOozeColor, midtoneOozeColor, colorPhase % 1),
+      map(rippleEffect, -6, -3.5, 0, 2)
+    );
   } else if (rippleEffect < 2.5) {
-    colorEffect = lerpColor(lightOozeColor, midtoneOozeColor, map(rippleEffect, -2.5, 2.5, 0, 1));
+    colorEffect = lerpColor(
+      lerpColor(lightOozeColor, midtoneOozeColor, colorPhase % 1),
+      lerpColor(midtoneOozeColor, darkOozeColor, colorPhase % 1),
+      map(rippleEffect, -3.5, 3.5, 0, 2)
+    );
   } else {
-    colorEffect = lerpColor(midtoneOozeColor, darkOozeColor, map(rippleEffect, 2.5, 5, 0, 1));
+    colorEffect = lerpColor(
+      lerpColor(midtoneOozeColor, darkOozeColor, colorPhase % 1),
+      lerpColor(darkOozeColor, veryLightOozeColor, colorPhase % 1),
+      map(rippleEffect, 3.5, 6, 0, 2)
+    );
   }
 
-  fill(colorEffect); 
-
+fill(colorEffect);
   push();
-  translate(0, rippleEffect); 
-  beginShape();
-  vertex(-p3_tileWidth(), 0);
-  vertex(0, p3_tileHeight());
-  vertex(p3_tileWidth(), 0);
-  vertex(0, -p3_tileHeight());
-  endShape(CLOSE);
+  translate(0, rippleEffect);
 
-  // draw rock
+  // Draw polygon instead of square
+  const polygonSides = 6; // Change this value to adjust the number of sides
+  const polygonRadius = min(p3_tileWidth(), p3_tileHeight()) / 2; // Radius based on tile dimensions
+  drawPolygon(polygonSides, polygonRadius);
+
+  // draw rocks
   const tileKey = `${i}_${j}`;
   if (!rocks[tileKey] && XXH.h32(tileKey, worldSeed).toNumber() % 100 < 10) {
     rocks[tileKey] = {
-      textureIndex: Math.floor(random() * rockTextures.length) 
+      textureIndex: Math.floor(random() * rockPhotos.length)
     };
   }
+
   if (rocks[tileKey]) {
     drawRock(rocks[tileKey].textureIndex);
   }
 
   pop();
 }
-
 function drawRock(textureIndex) {
-  const scale = (p3_tileWidth() * 2) / 64;
-  image(rockTextures[textureIndex], 0, -30, 64 * scale, 64 * scale);
+  const scale = (p3_tileWidth() * 2) / 32;
+  image(rockPhotos[textureIndex], 0, -30, 32 * scale, 30 * scale);
 }
 
 function p3_tileClicked(i, j) {
-  // This function can still handle interactions as needed
 }
 
 function p3_drawSelectedTile(i, j) {
   // noFill();
   fill(0);
-  //text("tile " + [i, j], 0, 0);
+  text("tile " + [i, j], 0, 0);
 }
 
+function drawPolygon(sides, radius) {
+  beginShape();
+  for (let i = 0; i < sides; i++) {
+    const angle = TWO_PI * i / sides;
+    const x = radius * cos(angle);
+    const y = radius * sin(angle);
+    vertex(x, y);
+  }
+  endShape(CLOSE);
+}
 
 function p3_drawAfter() {}
