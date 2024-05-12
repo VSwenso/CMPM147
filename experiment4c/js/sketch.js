@@ -4,7 +4,7 @@
 /* exported p3_preload, p3_setup, p3_worldKeyChanged, p3_tileClicked, p3_drawBefore, p3_drawTile, p3_drawSelectedTile, p3_drawAfter */
 
 let rockPhotos = [];
-let rocks = {}; // Stores data for each boat
+let rocks = {}; // Stores data for each rock
 
 function p3_preload() {
   //rock assets are from Evan Gassman on Vecteezy
@@ -19,7 +19,7 @@ function p3_worldKeyChanged(key) {
   worldSeed = XXH.h32(key, 0);
   noiseSeed(worldSeed);
   randomSeed(worldSeed);
-  rocks = {}; // Reset boats when the world key changes
+  rocks = {}; // Reset rocks when the world key changes
 }
 
 function p3_tileWidth() {
